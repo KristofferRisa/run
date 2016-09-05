@@ -20,15 +20,19 @@ namespace run.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            _logger.LogInformation("GET: /script");
             return new string[] { "value1", "value3" };
+            _logger.LogInformation("Done with GET request");
         }
 
         // POST: script
         [HttpPost]
         public IActionResult Post([FromBody]string value)
         {
+            _logger.LogInformation("POST: /script");
             try
             {
+
                 ProcessStartInfo psi = new ProcessStartInfo();
 
                 var fileName = _optionsAccessor.Value.Script;//configuration.GetSection("Script").Value;
@@ -50,7 +54,7 @@ namespace run.Controllers
                 _logger.LogError($"{e.Message} {e.StackTrace}");
                 return BadRequest(e.Message);
             }
-            
+            _logger.LogInformation("Done with POST request.");
 
         }
 
