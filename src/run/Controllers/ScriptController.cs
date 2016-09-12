@@ -47,13 +47,13 @@ namespace run.Controllers
                 }
                 else
                 {
-                    script = _optionsAccessor.Value.Folder + "\\" + script;
+                    script = _optionsAccessor.Value.Folder  + script;
                 }
                 _logger.LogInformation($"Script path {script}.");
 
                 psi.FileName = script; //"/tmp/bash.sh";
                 psi.UseShellExecute = false;
-                //psi.RedirectStandardOutput = true;
+                psi.RedirectStandardOutput = true;
                 psi.CreateNoWindow = true;
                 //psi.Arguments = "";
                 Process p = Process.Start(psi);
