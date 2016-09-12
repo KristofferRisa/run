@@ -57,11 +57,11 @@ namespace run.Controllers
                 psi.CreateNoWindow = true;
                 //psi.Arguments = "";
                 Process p = Process.Start(psi);
-                //string strOutput = p.StandardOutput.ReadToEnd();
+                string strOutput = p.StandardOutput.ReadToEnd();
                 p.WaitForExit();
-                //_logger.LogInformation(strOutput);
+                _logger.LogInformation(strOutput);
                 _logger.LogInformation("Done with POST request.");
-                return "OK";
+                return strOutput;
             }
             catch (Exception e)
             {
