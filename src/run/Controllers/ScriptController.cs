@@ -54,8 +54,8 @@ namespace run.Controllers
                 psi.FileName = script; //"/tmp/bash.sh";
                 psi.UseShellExecute = false;
                 psi.RedirectStandardOutput = true;
-                psi.CreateNoWindow = true;
-                //psi.Arguments = "";
+                //psi.CreateNoWindow = true;
+                psi.Arguments = "";
                 Process p = Process.Start(psi);
                 string strOutput = p.StandardOutput.ReadToEnd();
                 p.WaitForExit();
