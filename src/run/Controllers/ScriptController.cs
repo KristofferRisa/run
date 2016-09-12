@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace run.Controllers
 {
-    [Route("script")]
+    [Route("script/{name}")]
     public class ScriptController : Controller
     {
         public ScriptController(ILogger<ScriptController> logger, IOptions<ScriptOptions> optionsAccessor)
@@ -18,44 +18,57 @@ namespace run.Controllers
 
         // GET: script
         [HttpGet]
-        public IEnumerable<string> Get()
+        public string Get(string name)
         {
-            _logger.LogInformation("GET: /script");
-            return new string[] { "value1", "value3" };
-            _logger.LogInformation("Done with GET request");
+            _logger.LogInformation($"GET: /script/{name}");
+            
+            return StartScriptProcess(name);
+
+
         }
 
         // POST: script
         [HttpPost]
-        public IActionResult Post([FromBody]string value)
+        public string Post([FromBody]string value)
         {
             _logger.LogInformation("POST: /script");
+            return StartScriptProcess(null);
+        }
+
+        private string StartScriptProcess(string script)
+        {
             try
             {
-
                 ProcessStartInfo psi = new ProcessStartInfo();
 
-                var fileName = _optionsAccessor.Value.Script;//configuration.GetSection("Script").Value;
-                _logger.LogInformation($"Script path {fileName}.");
+                if (script == null)
+                {
+                    script = _optionsAccessor.Value.Script; //configuration.GetSection("Script").Value;
+                }
+                else
+                {
+                    script = _optionsAccessor.Value.Folder + "\\" + script;
+                }
+                _logger.LogInformation($"Script path {script}.");
 
-                psi.FileName = fileName; //"/tmp/bash.sh";
+                psi.FileName = script; //"/tmp/bash.sh";
                 psi.UseShellExecute = false;
-                psi.RedirectStandardOutput = true;
-
+                //psi.RedirectStandardOutput = true;
+                psi.CreateNoWindow = true;
                 //psi.Arguments = "";
                 Process p = Process.Start(psi);
-                string strOutput = p.StandardOutput.ReadToEnd();
+                //string strOutput = p.StandardOutput.ReadToEnd();
                 p.WaitForExit();
-                _logger.LogInformation(strOutput);
-                return Ok(strOutput);
+                //_logger.LogInformation(strOutput);
+                _logger.LogInformation("Done with POST request.");
+                return "OK";
             }
             catch (Exception e)
             {
                 _logger.LogError($"{e.Message} {e.StackTrace}");
-                return BadRequest(e.Message);
+                _logger.LogInformation("Done with POST request.");
+                return e.Message;
             }
-            _logger.LogInformation("Done with POST request.");
-
         }
 
         private readonly IOptions<ScriptOptions> _optionsAccessor;
