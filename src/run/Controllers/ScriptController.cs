@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,28 +12,26 @@ namespace run.Controllers
         public ScriptController(ILogger<ScriptController> logger, IOptions<ScriptOptions> optionsAccessor)
         {
             _logger = logger;
-            _optionsAccessor = optionsAccessor;
+            _options = optionsAccessor;
         }
 
         // GET: script
         [HttpGet]
         public string Get(string name)
         {
-            _logger.LogInformation($"GET: /script/{name}");
-            
+            _logger.LogDebug($"GET: /script/{name}");
             return StartScriptProcess(name);
-
-
         }
 
         // POST: script
         [HttpPost]
         public string Post([FromBody]string value)
         {
-            _logger.LogInformation("POST: /script");
+            _logger.LogDebug("POST: /script");
             return StartScriptProcess(null);
         }
 
+        #region helper methods
         private string StartScriptProcess(string script)
         {
             try
@@ -43,37 +40,41 @@ namespace run.Controllers
 
                 if (script == null)
                 {
-                    script = _optionsAccessor.Value.Script; //configuration.GetSection("Script").Value;
+                    script = _options.Value.Script;
                 }
                 else
                 {
-                    script = _optionsAccessor.Value.Folder  + script;
+                    script = _options.Value.Folder  + script;
                 }
-                _logger.LogInformation($"Script path {script}.");
+                _logger.LogInformation($"Running script {script}.");
 
-                psi.FileName = script; //"/tmp/bash.sh";
+                psi.FileName = script; 
                 psi.UseShellExecute = false;
                 psi.RedirectStandardOutput = true;
                 //psi.CreateNoWindow = true;
-                psi.Arguments = "";
+                psi.Arguments = _options.Value.Arguments;
                 Process p = Process.Start(psi);
+
                 string strOutput = p.StandardOutput.ReadToEnd();
                 p.WaitForExit();
+
                 _logger.LogInformation(strOutput);
-                _logger.LogInformation("Done with POST request.");
+                _logger.LogInformation("Done executing script");
+
                 return strOutput;
             }
             catch (Exception e)
             {
                 _logger.LogError($"{e.Message} {e.StackTrace}");
-                _logger.LogInformation("Done with POST request.");
                 return e.Message;
             }
         }
+        #endregion 
 
-        private readonly IOptions<ScriptOptions> _optionsAccessor;
+        #region private fields
+        private readonly IOptions<ScriptOptions> _options;
 
         private readonly ILogger<ScriptController> _logger;
-
+        #endregion
     }
 }

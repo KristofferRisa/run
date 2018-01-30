@@ -42,5 +42,6 @@ namespace run
     {
         public string Script { get; set; }
         public string Folder { get; set; }
+        public string Arguments { get; set; }
     }
 }
